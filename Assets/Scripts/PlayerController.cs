@@ -12,34 +12,46 @@ public class PlayerController : MonoBehaviour {
     public Text scoreText;
     public Text winText;
 
+    public AudioClip pickUpSound;
+    public AudioClip jumpSound;
+    public AudioClip winSound;
+    AudioSource audioSource;
+    Rigidbody rigidBody;
+
+    public bool isGrounded;
+
     int scoreCount;
     int remainingPickUps;
 
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+        rigidBody = GetComponent<Rigidbody>();
         scoreCount = 0;
         winText.text = "";
         UpdateScoreText();
     }
 
 	void FixedUpdate () {
-        Vector3 moveAxis = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
-        GetComponent<Rigidbody>().AddForce(cameraPan.TransformDirection(moveAxis * moveSpeed * Time.deltaTime));
-
-        if (Input.GetButtonDown("Jump"))
-        {
-            GetComponent<Rigidbody>().AddForce(cameraPan.TransformDirection(Vector3.up * jumpSpeed), ForceMode.Impulse);
-        }
+        Vector3 moveAxis = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
         
+        rigidBody.AddForce(cameraPan.TransformDirection(moveAxis * moveSpeed * Time.deltaTime));
+
+        isGrounded = Physics.Raycast(cameraPan.transform.position, cameraPan.transform.position + Vector3.down / 2);
+        
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+            audioSource.PlayOneShot(jumpSound, 0.3f);
+            rigidBody.AddForce(cameraPan.TransformDirection(Vector3.up * jumpSpeed), ForceMode.Impulse);
+        }
 	}
     void OnTriggerEnter(Collider other)
     {
         if ("Pick Up" == other.gameObject.tag)
         {
             other.gameObject.SetActive(false);
-            //Destroy(other.gameObject.GetComponent<Collider>());
-            //Destroy(other.gameObject,1f);
             scoreCount++;
+            audioSource.PlayOneShot(pickUpSound, 0.3f);
             UpdateScoreText();
             
         }
@@ -51,6 +63,7 @@ public class PlayerController : MonoBehaviour {
         scoreText.text = "Score: " + scoreCount;
         if (0 >= remainingPickUps)
         {
+            audioSource.PlayOneShot(winSound, 0.3f);
             winText.text = "You Win!";
         }
     }
