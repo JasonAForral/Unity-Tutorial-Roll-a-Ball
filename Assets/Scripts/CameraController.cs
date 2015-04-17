@@ -7,6 +7,8 @@ public class CameraController : MonoBehaviour {
     public Transform cameraZoom;
 
     public Transform playerTransform;
+
+    public float rotateSpeed;
     
     //private Vector3 offset;
 
@@ -18,8 +20,9 @@ public class CameraController : MonoBehaviour {
     void Update() {
         if (Input.GetMouseButton(2))
         {
-            transform.Rotate(Vector3.up * Input.GetAxis("Mouse X"));
-            cameraTilt.Rotate(Vector3.left * Input.GetAxis("Mouse Y"));
+            transform.Rotate(Vector3.up * Input.GetAxis("Mouse X") * rotateSpeed);
+            cameraTilt.Rotate(Vector3.left * Input.GetAxis("Mouse Y") * rotateSpeed);
+            cameraTilt.localRotation = Quaternion.Euler(Vector3.right * Mathf.Clamp(cameraTilt.localRotation.eulerAngles.x, 10f, 80f));
         }
     }
 

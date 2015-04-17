@@ -32,18 +32,23 @@ public class PlayerController : MonoBehaviour {
         UpdateScoreText();
     }
 
-	void FixedUpdate () {
-        Vector3 moveAxis = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
-        
-        rigidBody.AddForce(cameraPan.TransformDirection(moveAxis * moveSpeed * Time.deltaTime));
+    void Update () 
+    {
+        isGrounded = Physics.Raycast(cameraPan.position, Vector3.down, 0.6f);
 
-        isGrounded = Physics.Raycast(cameraPan.transform.position, cameraPan.transform.position + Vector3.down / 2);
-        
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             audioSource.PlayOneShot(jumpSound, 0.3f);
             rigidBody.AddForce(cameraPan.TransformDirection(Vector3.up * jumpSpeed), ForceMode.Impulse);
         }
+    }
+
+	void FixedUpdate () {
+        Vector3 moveAxis = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxisRaw("Vertical"));
+        
+        rigidBody.AddForce(cameraPan.TransformDirection(moveAxis * moveSpeed * Time.deltaTime));
+
+        
 	}
     void OnTriggerEnter(Collider other)
     {
